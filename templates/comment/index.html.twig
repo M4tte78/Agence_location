@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commentaires{% endblock %}
+
+{% block body %}
+    <h1>Liste des commentaires</h1>
+    <ul>
+        {% for comment in comments %}
+            <li>
+                {{ comment.content }} - Posté par {{ comment.author.email }} le {{ comment.createdAt|date('d/m/Y') }}
+            </li>
+        {% else %}
+            <p>Aucun commentaire trouvé.</p>
+        {% endfor %}
+    </ul>
+{% endblock %}

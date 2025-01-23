@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de la réservation{% endblock %}
+
+{% block body %}
+    <h1>Détails de la réservation</h1>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <td>{{ reservation.id }}</td>
+        </tr>
+        <tr>
+            <th>Date de début</th>
+            <td>{{ reservation.startDate|date('d/m/Y H:i') }}</td>
+        </tr>
+        <tr>
+            <th>Date de fin</th>
+            <td>{{ reservation.endDate|date('d/m/Y H:i') }}</td>
+        </tr>
+        <tr>
+            <th>Prix total</th>
+            <td>{{ reservation.totalPrice }} €</td>
+        </tr>
+        <tr>
+            <th>Statut</th>
+            <td>{{ reservation.status }}</td>
+        </tr>
+        <tr>
+            <th>Réservé par</th>
+            <td>{{ customer.email }}</td> <!-- Affichage du client associé -->
+        </tr>
+    </table>
+
+    <a href="{{ path('reservation_index') }}">Retour à la liste</a>
+{% endblock %}

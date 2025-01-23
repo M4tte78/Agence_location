@@ -1,0 +1,56 @@
+security:
+    # Fournisseurs d'utilisateurs
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\AppUser
+                property: email
+
+    # Configuration des hashers de mot de passe
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    # Firewalls
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\AppLoginAuthenticator
+            logout:
+                path: app_logout
+                target: app_home
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+
+    # Contrôle des accès
+    access_control:
+        # Accessible uniquement aux administrateurs
+        - { path: ^/vehicle/new, roles: ROLE_ADMIN }
+
+        # Accessible aux utilisateurs authentifiés
+        - { path: ^/vehicle, roles: ROLE_USER }
+        - { path: ^/reservation, roles: ROLE_USER }
+
+        # Routes publiques
+        # - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # # Par défaut, toutes les autres routes nécessitent ROLE_USER
+        # - { path: ^/, roles: ROLE_USER }
+
+
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

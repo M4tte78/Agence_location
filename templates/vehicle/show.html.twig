@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du véhicule{% endblock %}
+
+{% block body %}
+<div class="card shadow-lg mb-5">
+    <div class="card-header bg-dark text-white">
+        <h1 class="card-title text-center">Détails du véhicule</h1>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th>ID</th>
+                    <td>{{ vehicle.id }}</td>
+                </tr>
+                <tr>
+                    <th>Marque</th>
+                    <td>{{ vehicle.brand }}</td>
+                </tr>
+                <tr>
+                    <th>Modèle</th>
+                    <td>{{ vehicle.model }}</td>
+                </tr>
+                <tr>
+                    <th>Immatriculation</th>
+                    <td>{{ vehicle.registration }}</td>
+                </tr>
+                <tr>
+                    <th>Type</th>
+                    <td>{{ vehicle.type }}</td>
+                </tr>
+                <tr>
+                    <th>Prix par jour</th>
+                    <td>{{ vehicle.pricePerDay }} €</td>
+                </tr>
+                <tr>
+                    <th>Disponibilité</th>
+                    <td>{{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer text-center">
+        <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary me-2">Retour à la liste</a>
+        <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}" class="btn btn-warning me-2">Modifier</a>
+        {{ include('vehicle/_delete_form.html.twig') }}
+    </div>
+</div>
+
+<h3 class="mt-5">Commentaires</h3>
+<ul class="list-group">
+    {% for comment in vehicle.comments %}
+        <li class="list-group-item">
+            <strong>{{ comment.author.email }}</strong> :
+            {{ comment.content }}
+            <br>
+            <small>Posté le {{ comment.createdAt|date('d/m/Y H:i') }}</small>
+        </li>
+    {% else %}
+        <p>Aucun commentaire pour ce véhicule.</p>
+    {% endfor %}
+</ul>
+
+<h4 class="mt-4">Ajouter un commentaire</h4>
+<a href="{{ path('comment_new', { id: vehicle.id }) }}" class="btn btn-primary">Ajouter un commentaire</a>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un nouveau véhicule{% endblock %}
+
+{% block body %}
+<div class="container d-flex align-items-center justify-content-center vh-100">
+    <div class="card shadow p-4 w-50">
+        <h2 class="text-center mb-4">Créer un nouveau véhicule</h2>
+        {{ form_start(form) }}
+        <div class="mb-3">
+            {{ form_label(form.brand, 'Marque', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.brand, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="mb-3">
+            {{ form_label(form.model, 'Modèle', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.model, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="mb-3">
+            {{ form_label(form.registration, 'Immatriculation', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.registration, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="mb-3">
+            {{ form_label(form.type, 'Type de véhicule', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="mb-3">
+            {{ form_label(form.pricePerDay, 'Prix par jour (€)', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.pricePerDay, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="mb-3">
+            {{ form_label(form.availabilityStatus, 'Disponible', {'label_attr': {'class': 'form-check-label'}}) }}
+            {{ form_widget(form.availabilityStatus, {'attr': {'class': 'form-check-input'}}) }}
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Enregistrer</button>
+            <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour à la liste</a>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; background: linear-gradient(135deg, #4A90E2, #9013FE); color: white;">
+    <div class="card shadow-lg" style="width: 100%; max-width: 400px; border-radius: 15px; overflow: hidden;">
+        <div class="card-header text-center" style="background-color: #4A90E2; color: white;">
+            <h2 class="mb-0">Créer un compte</h2>
+        </div>
+        <div class="card-body p-4">
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.email, 'Adresse Email', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Entrez votre adresse email'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.password, 'Mot de Passe', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.password, {'attr': {'class': 'form-control', 'placeholder': 'Entrez votre mot de passe'}}) }}
+                    {{ form_errors(form.password) }}
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary" style="background-color: #9013FE; border-color: #9013FE;">
+                        S'inscrire
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+        <div class="card-footer text-center" style="background-color: #F5F5F5;">
+            <p class="mb-0" style="color: #333;">Vous avez déjà un compte ? <a href="{{ path('app_login') }}" style="color: #4A90E2; text-decoration: none;">Connectez-vous</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

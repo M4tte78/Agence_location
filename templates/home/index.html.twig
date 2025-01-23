@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<!-- Barre de navigation -->
+{# <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Agence Luxe</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+                    </li>
+                    {% if app_register is defined %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('register') }}">Inscription</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav> #}
+
+<!-- Section principale -->
+<div class="hero d-flex align-items-center" style="background: url('/images/eiffel2.svg') center/cover no-repeat; height: 70vh;">
+    <div class="container text-white text-center">
+        <h1 class="display-4 fw-bold">Bienvenue sur notre site de location de véhicules</h1>
+        <p class="lead mt-3">Explorez nos véhicules disponibles et réservez dès aujourd'hui !</p>
+        <div class="mt-4">
+            <a href="{{ path('app_vehicle_index') }}" class="btn btn-lg btn-orange px-5">Voir les véhicules</a>
+        </div>
+    </div>
+</div>
+
+<!-- Section promotion -->
+<section class="py-5 bg-orange text-center text-white">
+    <div class="container">
+        <h2 class="display-5">LOUEZ HAUT DE GAMME À PRIX ATTRACTIF.</h2>
+        <p class="lead">Profitez de notre sélection de véhicules premium au meilleur prix.</p>
+    </div>
+</section>
+{% endblock %}

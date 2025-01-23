@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des véhicules{% endblock %}
+
+{% block body %}
+<!-- Section hero -->
+<div class="hero d-flex align-items-center" style="background: linear-gradient(135deg,rgb(19, 18, 17),rgb(70, 70, 69)); height: 50vh;">
+    <div class="container text-white text-center">
+        <h1 class="display-4 fw-bold">Explorez notre flotte de véhicules</h1>
+        <p class="lead mt-3">Choisissez parmi nos véhicules haut de gamme à des prix attractifs.</p>
+    </div>
+</div>
+
+
+<!-- Liste des véhicules -->
+<div class="container my-5 p-4" style="background-color: #f8f9fa; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);">
+    <h2 class="text-center mb-4 text-orange" style="font-weight: 700;">Liste des véhicules disponibles</h2>
+
+    <table class="table table-striped table-hover shadow-lg">
+        <thead style="background-color:rgb(16, 15, 15); color: white;">
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Marque</th>
+                <th>Modèle</th>
+                <th>Type</th>
+                <th>Prix par jour</th>
+                <th>Disponibilité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vehicle in vehicles %}
+                <tr style="vertical-align: middle;">
+                    <td><strong>{{ vehicle.id }}</strong></td>
+                    <td>
+                        {% if vehicle.image %}
+                        <img src="/images/vehicles/{{ vehicle.image }}" alt="{{ vehicle.brand }}" class="img-thumbnail" style="width: 120px; height: 80px; object-fit: cover;">
+                        {% else %}
+                            <span class="text-muted">Pas d'image</span>
+                        {% endif %}
+                    </td>
+                    <td><span style="color:rgb(11, 89, 105); font-weight: bold;">{{ vehicle.brand }}</span></td>
+                    <td>{{ vehicle.model }}</td>
+                    <td>{{ vehicle.type }}</td>
+                    <td><span style="color:rgb(11, 89, 105); font-weight: bold;">{{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €</span></td>
+                    <td>
+                        <span class="badge {{ vehicle.availabilityStatus ? 'bg-success' : 'bg-danger' }}" style="font-size: 14px;">
+                            {{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}" class="btn btn-outline-info btn-sm">Voir</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}" class="btn btn-outline-primary btn-sm">Modifier</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="text-center mt-4">
+            <a href="{{ path('app_vehicle_new') }}" class="btn btn-orange btn-lg px-5" style="border-radius: 25px;">Créer un nouveau véhicule</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
