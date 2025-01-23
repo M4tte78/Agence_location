@@ -50,7 +50,7 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}" class="btn btn-outline-info btn-sm">Voir</a>
+                        <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}" class="btn btn-primary">Voir</a>
                         {% if is_granted('ROLE_ADMIN') %}
                         <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}" class="btn btn-outline-primary btn-sm">Modifier</a>
                         {% endif %}
