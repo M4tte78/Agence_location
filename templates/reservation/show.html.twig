@@ -2,10 +2,54 @@
 
 {% block title %}Détails de la réservation{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .reservation-details {
+            font-family: 'Arial', sans-serif;
+            margin: 20px auto;
+            width: 80%;
+            border-collapse: collapse;
+        }
+        .reservation-details th, .reservation-details td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .reservation-details th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        .reservation-details tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .reservation-details tr:hover {
+            background-color: #ddd;
+        }
+        .reservation-details th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-link:hover {
+            background-color: #45a049;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Détails de la réservation</h1>
 
-    <table>
+    <table class="reservation-details">
         <tr>
             <th>ID</th>
             <td>{{ reservation.id }}</td>
@@ -28,9 +72,9 @@
         </tr>
         <tr>
             <th>Réservé par</th>
-            <td>{{ customer.email }}</td> <!-- Affichage du client associé -->
+            <td>{{ customer.email }}</td>
         </tr>
     </table>
 
-    <a href="{{ path('reservation_index') }}">Retour à la liste</a>
+    <a href="{{ path('app_reservation_index') }}" class="back-link">Retour à la liste</a>
 {% endblock %}

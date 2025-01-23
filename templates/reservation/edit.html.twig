@@ -1,13 +1,47 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Reservation{% endblock %}
+{% block title %}Modifier la réservation{% endblock %}
 
 {% block body %}
-    <h1>Edit Reservation</h1>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="text-center">Modifier la réservation</h1>
+                    </div>
+                    <div class="card-body">
+                        {{ include('reservation/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ path('app_reservation_index') }}" class="btn btn-secondary">Retour à la liste</a>
+                        <div class="luxury-delete-form">
+                            {{ include('reservation/_delete_form.html.twig') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
-    {{ include('reservation/_form.html.twig', {'button_label': 'Update'}) }}
-
-    <a href="{{ path('app_reservation_index') }}">back to list</a>
-
-    {{ include('reservation/_delete_form.html.twig') }}
+{% block stylesheets %}
+<style>
+    .luxury-container {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .luxury-back-link .btn {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .luxury-delete-form {
+        text-align: center;
+    }
+</style>
 {% endblock %}

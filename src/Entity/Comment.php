@@ -26,6 +26,9 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?AppUser $author = null;
 
+    // #[ORM\Column(length: 255, nullable: true)]
+    // private ?string $authorEmail = null;
+
     #[ORM\ManyToOne(targetEntity: Vehicle::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Vehicle $vehicle = null;
@@ -75,6 +78,18 @@ class Comment
 
         return $this;
     }
+
+    // public function getAuthorEmail(): ?string
+    // {
+    //     return $this->authorEmail;
+    // }
+
+    // public function setAuthorEmail(?string $authorEmail): self
+    // {
+    //     $this->authorEmail = $authorEmail;
+
+    //     return $this;
+    // }
 
     public function getVehicle(): ?Vehicle
     {

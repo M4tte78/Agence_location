@@ -3,65 +3,83 @@
 {% block title %}Détails du véhicule{% endblock %}
 
 {% block body %}
-<div class="card shadow-lg mb-5">
-    <div class="card-header bg-dark text-white">
-        <h1 class="card-title text-center">Détails du véhicule</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Détails du véhicule</h1>
+
+    <table class="table table-bordered shadow-sm">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ vehicle.id }}</td>
+            </tr>
+            <tr>
+                <th>Marque</th>
+                <td>{{ vehicle.brand }}</td>
+            </tr>
+            <tr>
+                <th>Modèle</th>
+                <td>{{ vehicle.model }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ vehicle.type }}</td>
+            </tr>
+            <tr>
+                <th>Prix par jour</th>
+                <td>{{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €</td>
+            </tr>
+            <tr>
+                <th>Disponibilité</th>
+                <td>
+                    <span class="badge {{ vehicle.availabilityStatus ? 'bg-success' : 'bg-danger' }}">
+                        {{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour à la liste</a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <div>
+                <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}" class="btn btn-warning">Modifier</a>
+                {{ include('vehicle/_delete_form.html.twig', { 'class': 'btn btn-danger' }) }}
+            </div>
+        {% endif %}
     </div>
-    <div class="card-body">
-        <table class="table table-bordered">
-            <tbody>
-                <tr>
-                    <th>ID</th>
-                    <td>{{ vehicle.id }}</td>
-                </tr>
-                <tr>
-                    <th>Marque</th>
-                    <td>{{ vehicle.brand }}</td>
-                </tr>
-                <tr>
-                    <th>Modèle</th>
-                    <td>{{ vehicle.model }}</td>
-                </tr>
-                <tr>
-                    <th>Immatriculation</th>
-                    <td>{{ vehicle.registration }}</td>
-                </tr>
-                <tr>
-                    <th>Type</th>
-                    <td>{{ vehicle.type }}</td>
-                </tr>
-                <tr>
-                    <th>Prix par jour</th>
-                    <td>{{ vehicle.pricePerDay }} €</td>
-                </tr>
-                <tr>
-                    <th>Disponibilité</th>
-                    <td>{{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer text-center">
-        <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary me-2">Retour à la liste</a>
-        <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}" class="btn btn-warning me-2">Modifier</a>
-        {{ include('vehicle/_delete_form.html.twig') }}
+
+    {% if vehicle.availabilityStatus %}
+        <div class="mt-4">
+            <a href="{{ path('app_reservation_new', {'id': vehicle.id}) }}" class="btn btn-primary">Réserver</a>
+        </div>
+    {% endif %}
+
+    <!-- Section des commentaires -->
+    <div class="mt-5">
+        <h2>Commentaires</h2>
+        {% for comment in vehicle.comments %}
+            <div class="border p-3 rounded shadow-sm mb-3">
+                <strong>{{ comment.author.email }}</strong> : {{ comment.content }}
+                <br>
+                <small class="text-muted">Posté le {{ comment.createdAt|date('d/m/Y H:i') }}</small>
+            </div>
+        {% else %}
+            <p class="text-muted">Aucun commentaire pour ce véhicule.</p>
+        {% endfor %}
+
+        {% if vehicle.comments | length > 0 %}
+            <!-- Formulaire d'ajout de commentaire -->
+            <div class="mt-4">
+                <h3>Ajouter un commentaire</h3>
+                <form method="post" action="{{ path('app_vehicle_show', {'id': vehicle.id}) }}">
+                    {{ form_widget(commentForm) }}
+                    <button class="btn btn-primary mt-2">Envoyer</button>
+                </form>
+            </div>
+        {% else %}
+            <p class="text-muted mt-4">Vous devez avoir réservé ce véhicule pour pouvoir commenter.</p>
+        {% endif %}
     </div>
 </div>
-
-<h3 class="mt-5">Commentaires</h3>
-<ul class="list-group">
-    {% for comment in vehicle.comments %}
-        <li class="list-group-item">
-            <strong>{{ comment.author.email }}</strong> :
-            {{ comment.content }}
-            <br>
-            <small>Posté le {{ comment.createdAt|date('d/m/Y H:i') }}</small>
-        </li>
-    {% else %}
-        <p>Aucun commentaire pour ce véhicule.</p>
-    {% endfor %}
-</ul>
-
-<h4 class="mt-4">Ajouter un commentaire</h4>
-<a href="{{ path('comment_new', { id: vehicle.id }) }}" class="btn btn-primary">Ajouter un commentaire</a>
 {% endblock %}

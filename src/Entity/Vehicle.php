@@ -28,7 +28,7 @@ class Vehicle
     private ?string $type = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    private ?float $pricePerDay = null;
+    private ?string $pricePerDay = null;
 
     #[ORM\Column]
     private ?bool $availabilityStatus = null;
@@ -39,10 +39,17 @@ class Vehicle
     #[ORM\OneToMany(mappedBy: 'vehicle', targetEntity: Comment::class, cascade: ['persist', 'remove'])]
     private Collection $comments;
 
+    #[ORM\OneToMany(mappedBy: 'vehicle', targetEntity: Reservation::class)]
+    private Collection $reservations;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
     }
+
+
+   
 
     // ID
     public function getId(): ?int
@@ -163,6 +170,37 @@ class Vehicle
             // Set the owning side to null (unless already changed)
             if ($comment->getVehicle() === $this) {
                 $comment->setVehicle(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // Reservations
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): self
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations[] = $reservation;
+            $reservation->setVehicle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): self
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // Set the owning side to null (unless already changed)
+            if ($reservation->getVehicle() === $this) {
+                $reservation->setVehicle(null);
             }
         }
 

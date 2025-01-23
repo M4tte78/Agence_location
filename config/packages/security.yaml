@@ -32,6 +32,7 @@ security:
     access_control:
         # Accessible uniquement aux administrateurs
         - { path: ^/vehicle/new, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
         # Accessible aux utilisateurs authentifiés
         - { path: ^/vehicle, roles: ROLE_USER }

@@ -4,7 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Vehicle;
 use App\Form\VehicleType;
+use App\Form\CommentType;
 use App\Repository\VehicleRepository;
+use App\Repository\CommentRepository;
+use App\Repository\ReservationRepository;
+use App\Entity\Comment;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,12 +55,10 @@ class VehicleController extends AbstractController
                         $this->getParameter('vehicle_images_directory'),
                         $newFilename
                     );
+                    $vehicle->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('danger', 'Une erreur est survenue lors du téléchargement de l\'image.');
                 }
-
-                // Mettre à jour la propriété `image` du véhicule
-                $vehicle->setImage($newFilename);
             }
 
             $entityManager->persist($vehicle);
@@ -71,13 +74,55 @@ class VehicleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_vehicle_show', methods: ['GET'])]
-    public function show(Vehicle $vehicle): Response
-    {
+    #[Route('/vehicle/{id}', name: 'app_vehicle_show', methods: ['GET', 'POST'])]
+    public function show(
+        Vehicle $vehicle,
+        CommentRepository $commentRepository,
+        ReservationRepository $reservationRepository,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        // Récupérer les commentaires associés au véhicule
+       $comments = $commentRepository->findBy(['vehicle' => $vehicle]);
+
+
+        // Vérifier si l'utilisateur peut commenter
+        $canComment = false;
+        $user = $this->getUser();
+
+        // if ($user) {
+        //     // Vérifier si l'utilisateur est admin ou s'il a réservé le véhicule
+        //     $canComment = $this->isGranted('ROLE_ADMIN') || 
+        //         $reservationRepository->findOneBy(['vehicle' => $vehicle, 'customer' => $user]);
+        // }
+
+        // Créer le formulaire de commentaire si l'utilisateur peut commenter
+       // $form = null;
+       // if ($canComment) {
+            $comment = new Comment();
+            $form = $this->createForm(CommentType::class, $comment);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $comment->setVehicle($vehicle);
+                $comment->setAuthor($user);
+                $entityManager->persist($comment);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Votre commentaire a été ajouté.');
+                return $this->redirectToRoute('app_vehicle_show', ['id' => $vehicle->getId()]);
+            }
+      //  }
+
         return $this->render('vehicle/show.html.twig', [
             'vehicle' => $vehicle,
+            'comments' => $comments,
+            'canComment' => $canComment,
+            'commentForm' => $form ? $form->createView() : null,
         ]);
     }
+
+
 
     #[Route('/{id}/edit', name: 'app_vehicle_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -93,18 +138,15 @@ class VehicleController extends AbstractController
             if ($imageFile) {
                 $newFilename = uniqid() . '.' . $imageFile->guessExtension();
 
-                // Déplacer le fichier dans le dossier public/images/vehicles
                 try {
                     $imageFile->move(
                         $this->getParameter('vehicle_images_directory'),
                         $newFilename
                     );
+                    $vehicle->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('danger', 'Une erreur est survenue lors du téléchargement de l\'image.');
                 }
-
-                // Mettre à jour la propriété `image` du véhicule
-                $vehicle->setImage($newFilename);
             }
 
             $entityManager->flush();
