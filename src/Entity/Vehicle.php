@@ -128,12 +128,57 @@ class Vehicle
         return $this->availabilityStatus;
     }
 
-    public function setAvailabilityStatus(bool $availabilityStatus): self
+    public function setAvailabilityStatus(bool $availabilityStatus, bool $forceUpdate = false): self
     {
+        // Vérifiez si une tentative de modification est réellement effectuée
+        if ($availabilityStatus !== $this->availabilityStatus) {
+            // Vérifiez les réservations actives uniquement si une vraie modification est demandée et non forcée
+            if (!$forceUpdate && $this->hasActiveReservations()) {
+                throw new \LogicException("Le statut ne peut pas être modifié tant qu'une réservation en cours existe.");
+            }
+        }
+
+        // Appliquez le nouveau statut
         $this->availabilityStatus = $availabilityStatus;
 
         return $this;
     }
+
+    // src/Entity/Vehicle.php
+    public function updateAvailabilityStatus(\DateTimeImmutable $currentDate): void
+    {
+        $hasActiveReservation = false;
+
+        foreach ($this->getReservations() as $reservation) {
+            if ($reservation->getStartDate() <= $currentDate && $reservation->getEndDate() >= $currentDate) {
+                $hasActiveReservation = true;
+                break;
+            }
+        }
+
+        // Met à jour le statut en conséquence
+        $this->setAvailabilityStatus(!$hasActiveReservation, true);
+    }
+
+
+
+
+
+
+    // Ajoutez une méthode pour vérifier les réservations actives
+    public function hasActiveReservations(): bool
+    {
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->getEndDate() > new \DateTime()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+  
+
 
     // Image
     public function getImage(): ?string

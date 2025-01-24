@@ -88,6 +88,16 @@ class Reservation
         return $this;
     }
 
+    public function getFinalPrice(): float
+    {
+        if ($this->totalPrice >= 300) {
+            return $this->totalPrice * 0.9; // Réduction de 10 %
+        }
+
+        return $this->totalPrice;
+    }
+
+
     public function getStatus(): ?string
     {
         return $this->status;

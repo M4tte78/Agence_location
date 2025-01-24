@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Vehicle;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -44,12 +45,27 @@ class VehicleType extends AbstractType
             ->add('pricePerDay', NumberType::class, [
                 'label' => 'Prix par jour (€)',
                 'attr' => ['placeholder' => 'Entrez le tarif journalier en euros'],
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Le prix par jour est obligatoire.',
+                    ]),
+                    new Assert\Range([
+                        'min' => 20,
+                        'max' => 300,
+                        'notInRangeMessage' => 'Le prix par jour doit être compris entre {{ min }} € et {{ max }} €.',
+                    ]),
+                ],
             ])
+            
 
             // Champ pour la disponibilité
             ->add('availabilityStatus', CheckboxType::class, [
                 'label' => 'Disponible',
                 'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                    'disabled' => $options['disable_availability'] ?? false,
+                ],
             ])
 
             // Champ pour l'image

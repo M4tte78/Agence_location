@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Reservation;
+use App\Entity\Vehicle; 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,6 +16,32 @@ class ReservationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reservation::class);
     }
+
+    public function countReservationsByVehicle(Vehicle $vehicle): int
+    {
+        return $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.vehicle = :vehicle')
+            ->setParameter('vehicle', $vehicle)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function hasReservationForToday(Vehicle $vehicle, \DateTimeImmutable $currentDate): bool
+    {
+        return $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.vehicle = :vehicle')
+            ->andWhere('r.startDate <= :currentDate')
+            ->andWhere('r.endDate >= :currentDate')
+            ->setParameter('vehicle', $vehicle)
+            ->setParameter('currentDate', $currentDate)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
+
+
+
 
 //    /**
 //     * @return Reservation[] Returns an array of Reservation objects

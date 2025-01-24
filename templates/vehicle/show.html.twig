@@ -3,43 +3,70 @@
 {% block title %}Détails du véhicule{% endblock %}
 
 {% block body %}
+<!-- Section hero -->
+<div class="hero d-flex align-items-center" style="background: linear-gradient(135deg, rgb(19, 18, 17), rgb(70, 70, 69)); height: 50vh;">
+    <div class="container text-white text-center">
+        <h1 class="display-5 fw-bold">Détails du véhicule</h1>
+        <p class="lead mt-3">Informations complètes sur ce véhicule.</p>
+    </div>
+</div>
+
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Détails du véhicule</h1>
+    <!-- Détails du véhicule -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-dark text-white text-center">
+            <h2>{{ vehicle.brand }} {{ vehicle.model }}</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>ID</th>
+                        <td>{{ vehicle.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Marque</th>
+                        <td>{{ vehicle.brand }}</td>
+                    </tr>
+                    <tr>
+                        <th>Modèle</th>
+                        <td>{{ vehicle.model }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ vehicle.type }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prix par jour</th>
+                        <td>
+                            {% if vehicle.pricePerDay == 300 %}
+                                {% set discountedPrice = vehicle.pricePerDay * 0.9 %}
+                                <span class="text-decoration-line-through">{{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €</span>
+                                <span class="text-success">{{ discountedPrice|number_format(2, ',', ' ') }} €</span>
+                            {% else %}
+                                {{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Disponibilité</th>
+                        <td>
+                            <span class="badge {{ vehicle.availabilityStatus ? 'bg-success' : 'bg-danger' }}">
+                                {{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Nombre de réservations</th>
+                        <td>{{ totalReservations }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <table class="table table-bordered shadow-sm">
-        <tbody>
-            <tr>
-                <th>ID</th>
-                <td>{{ vehicle.id }}</td>
-            </tr>
-            <tr>
-                <th>Marque</th>
-                <td>{{ vehicle.brand }}</td>
-            </tr>
-            <tr>
-                <th>Modèle</th>
-                <td>{{ vehicle.model }}</td>
-            </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ vehicle.type }}</td>
-            </tr>
-            <tr>
-                <th>Prix par jour</th>
-                <td>{{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €</td>
-            </tr>
-            <tr>
-                <th>Disponibilité</th>
-                <td>
-                    <span class="badge {{ vehicle.availabilityStatus ? 'bg-success' : 'bg-danger' }}">
-                        {{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="d-flex justify-content-between mt-4">
+    <!-- Actions administrateur -->
+    <div class="d-flex justify-content-between mb-4">
         <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour à la liste</a>
         {% if is_granted('ROLE_ADMIN') %}
             <div>
@@ -49,11 +76,15 @@
         {% endif %}
     </div>
 
+    <!-- Réservation -->
     {% if vehicle.availabilityStatus %}
-        <div class="mt-4">
-            <a href="{{ path('app_reservation_new', {'id': vehicle.id}) }}" class="btn btn-primary">Réserver</a>
+        <div class="text-center mb-4">
+            <a href="{{ path('app_reservation_new', { 'vehicle_id': vehicle.id }) }}" class="btn btn-primary">
+                Réserver
+            </a>
         </div>
     {% endif %}
+
 
     <!-- Section des commentaires -->
     <div class="mt-5">
@@ -67,19 +98,19 @@
         {% else %}
             <p class="text-muted">Aucun commentaire pour ce véhicule.</p>
         {% endfor %}
-
-        {% if vehicle.comments | length > 0 %}
-            <!-- Formulaire d'ajout de commentaire -->
-            <div class="mt-4">
-                <h3>Ajouter un commentaire</h3>
-                <form method="post" action="{{ path('app_vehicle_show', {'id': vehicle.id}) }}">
-                    {{ form_widget(commentForm) }}
-                    <button class="btn btn-primary mt-2">Envoyer</button>
-                </form>
-            </div>
-        {% else %}
-            <p class="text-muted mt-4">Vous devez avoir réservé ce véhicule pour pouvoir commenter.</p>
-        {% endif %}
     </div>
+
+    <!-- Ajouter un commentaire -->
+    {% if canComment %}
+        <div class="mt-4">
+            <h3>Ajouter un commentaire</h3>
+            <form method="post" action="{{ path('app_vehicle_show', {'id': vehicle.id}) }}">
+                {{ form_widget(commentForm) }}
+                <button class="btn btn-primary mt-2">Envoyer</button>
+            </form>
+        </div>
+    {% else %}
+        <p class="text-muted mt-4">Vous devez avoir réservé ce véhicule pour pouvoir commenter.</p>
+    {% endif %}
 </div>
 {% endblock %}

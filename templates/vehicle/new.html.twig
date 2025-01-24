@@ -1,41 +1,65 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer un nouveau véhicule{% endblock %}
+{% block title %}Créer une nouvelle réservation{% endblock %}
 
 {% block body %}
-<div class="container d-flex align-items-center justify-content-center vh-100">
-    <div class="card shadow p-4 w-50">
-        <h2 class="text-center mb-4">Créer un nouveau véhicule</h2>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Créer une nouvelle réservation</h1>
+
+    <div class="card p-4 shadow-sm">
+        <h2 class="text-center mb-3">Formulaire de réservation</h2>
+
         {{ form_start(form) }}
-        <div class="mb-3">
-            {{ form_label(form.brand, 'Marque', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.brand, {'attr': {'class': 'form-control'}}) }}
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <!-- Champs supplémentaires pour les administrateurs -->
+            {% if form.customer is defined %}
+                <div class="form-group">
+                    {{ form_label(form.customer, 'Client', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.customer, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.customer) }}
+                </div>
+            {% endif %}
+            {% if form.vehicle is defined %}
+                <div class="form-group">
+                    {{ form_label(form.vehicle, 'Véhicule', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.vehicle, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.vehicle) }}
+                </div>
+            {% endif %}
+            {% if form.totalPrice is defined %}
+                <div class="form-group">
+                    {{ form_label(form.totalPrice, 'Prix total (€)', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.totalPrice, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.totalPrice) }}
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Informations affichées côté client -->
+            <input type="hidden" name="vehicle_id" value="{{ vehicle.id }}">
+            <p><strong>Véhicule :</strong> {{ vehicle.brand }} {{ vehicle.model }}</p>
+            <p><strong>Prix par jour :</strong> {{ vehicle.pricePerDay }} €</p>
+        {% endif %}
+
+        <!-- Champs communs -->
+        <div class="form-group">
+            {{ form_label(form.startDate, 'Date de début', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.startDate, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.startDate) }}
         </div>
-        <div class="mb-3">
-            {{ form_label(form.model, 'Modèle', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.model, {'attr': {'class': 'form-control'}}) }}
+        <div class="form-group">
+            {{ form_label(form.endDate, 'Date de fin', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.endDate, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.endDate) }}
         </div>
-        <div class="mb-3">
-            {{ form_label(form.registration, 'Immatriculation', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.registration, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="mb-3">
-            {{ form_label(form.type, 'Type de véhicule', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="mb-3">
-            {{ form_label(form.pricePerDay, 'Prix par jour (€)', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.pricePerDay, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="mb-3">
-            {{ form_label(form.availabilityStatus, 'Disponible', {'label_attr': {'class': 'form-check-label'}}) }}
-            {{ form_widget(form.availabilityStatus, {'attr': {'class': 'form-check-input'}}) }}
-        </div>
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-success">Enregistrer</button>
-            <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour à la liste</a>
-        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-3">Réserver</button>
         {{ form_end(form) }}
+
+        <!-- Bouton pour revenir à la liste des véhicules -->
+        <div class="text-center mt-3">
+            <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour à la liste des véhicules</a>
+        </div>
     </div>
 </div>
 {% endblock %}

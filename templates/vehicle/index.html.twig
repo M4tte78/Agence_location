@@ -43,7 +43,17 @@
                     <td><span style="color:rgb(11, 89, 105); font-weight: bold;">{{ vehicle.brand }}</span></td>
                     <td>{{ vehicle.model }}</td>
                     <td>{{ vehicle.type }}</td>
-                    <td><span style="color:rgb(11, 89, 105); font-weight: bold;">{{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €</span></td>
+                    <td>
+                        <span style="color:rgb(11, 89, 105); font-weight: bold;">
+                            {{ vehicle.pricePerDay|number_format(2, ',', ' ') }} €
+                        </span>
+                        {% if vehicle.pricePerDay == 300 %}
+                            <br>
+                            <span class="text-success" style="font-weight: bold;">
+                                Remise de 10%: {{ (vehicle.pricePerDay * 0.9)|number_format(2, ',', ' ') }} €
+                            </span>
+                        {% endif %}
+                    </td>
                     <td>
                         <span class="badge {{ vehicle.availabilityStatus ? 'bg-success' : 'bg-danger' }}" style="font-size: 14px;">
                             {{ vehicle.availabilityStatus ? 'Disponible' : 'Indisponible' }}

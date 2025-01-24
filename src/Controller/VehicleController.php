@@ -2,14 +2,14 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Vehicle;
+use App\Entity\Comment;
 use App\Form\VehicleType;
 use App\Form\CommentType;
 use App\Repository\VehicleRepository;
 use App\Repository\CommentRepository;
 use App\Repository\ReservationRepository;
-use App\Entity\Comment;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,8 +23,21 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class VehicleController extends AbstractController
 {
     #[Route('/', name: 'app_vehicle_index', methods: ['GET', 'POST'])]
-    public function index(Request $request, VehicleRepository $vehicleRepository): Response
+    public function index(Request $request, VehicleRepository $vehicleRepository, ReservationRepository $reservationRepository, EntityManagerInterface $entityManager): Response
     {
+        $currentDate = new \DateTimeImmutable();
+
+        // Récupérer tous les véhicules
+        $vehicles = $vehicleRepository->findAll();
+
+        foreach ($vehicles as $vehicle) {
+            $vehicle->updateAvailabilityStatus($currentDate);
+        }
+
+        // Sauvegarder les changements
+        $entityManager->flush();
+
+        // Recherche des véhicules
         $search = $request->query->get('search', '');
         $vehicles = $vehicleRepository->findBySearch($search);
 
@@ -33,6 +46,9 @@ class VehicleController extends AbstractController
             'search' => $search,
         ]);
     }
+
+
+
 
     #[Route('/new', name: 'app_vehicle_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -43,13 +59,18 @@ class VehicleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $imageFile */
-            $imageFile = $form->get('image')->getData();
+            if ($vehicle->getPricePerDay() < 20 || $vehicle->getPricePerDay() > 300) {
+                $this->addFlash('danger', 'Le prix par jour doit être compris entre 20 € et 300 €.');
+                return $this->render('vehicle/new.html.twig', [
+                    'vehicle' => $vehicle,
+                    'form' => $form->createView(),
+                ]);
+            }
 
+            // Gestion de l'image
+            $imageFile = $form->get('image')->getData();
             if ($imageFile) {
                 $newFilename = uniqid() . '.' . $imageFile->guessExtension();
-
-                // Déplacer le fichier dans le dossier public/images/vehicles
                 try {
                     $imageFile->move(
                         $this->getParameter('vehicle_images_directory'),
@@ -65,7 +86,7 @@ class VehicleController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Véhicule ajouté avec succès.');
-            return $this->redirectToRoute('app_vehicle_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_vehicle_index');
         }
 
         return $this->render('vehicle/new.html.twig', [
@@ -82,23 +103,29 @@ class VehicleController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        // Récupérer les commentaires associés au véhicule
-       $comments = $commentRepository->findBy(['vehicle' => $vehicle]);
+        // Mise à jour automatique de la disponibilité
+        $currentDate = new \DateTimeImmutable();
+        $vehicle->updateAvailabilityStatus($currentDate);
 
+        // Sauvegarde de l'état mis à jour
+        $entityManager->flush();
 
-        // Vérifier si l'utilisateur peut commenter
-        $canComment = false;
+        // Récupération des commentaires et des réservations
+        $comments = $commentRepository->findBy(['vehicle' => $vehicle]);
+        $totalReservations = $reservationRepository->countReservationsByVehicle($vehicle);
+
+        // Vérification pour ajouter des commentaires
         $user = $this->getUser();
+        $canComment = false;
 
-        // if ($user) {
-        //     // Vérifier si l'utilisateur est admin ou s'il a réservé le véhicule
-        //     $canComment = $this->isGranted('ROLE_ADMIN') || 
-        //         $reservationRepository->findOneBy(['vehicle' => $vehicle, 'customer' => $user]);
-        // }
+        if ($user) {
+            $canComment = $this->isGranted('ROLE_ADMIN') || 
+                $reservationRepository->findOneBy(['vehicle' => $vehicle, 'customer' => $user]);
+        }
 
-        // Créer le formulaire de commentaire si l'utilisateur peut commenter
-       // $form = null;
-       // if ($canComment) {
+        // Formulaire de commentaire
+        $form = null;
+        if ($canComment) {
             $comment = new Comment();
             $form = $this->createForm(CommentType::class, $comment);
             $form->handleRequest($request);
@@ -112,16 +139,16 @@ class VehicleController extends AbstractController
                 $this->addFlash('success', 'Votre commentaire a été ajouté.');
                 return $this->redirectToRoute('app_vehicle_show', ['id' => $vehicle->getId()]);
             }
-      //  }
+        }
 
         return $this->render('vehicle/show.html.twig', [
             'vehicle' => $vehicle,
             'comments' => $comments,
+            'totalReservations' => $totalReservations,
             'canComment' => $canComment,
             'commentForm' => $form ? $form->createView() : null,
         ]);
     }
-
 
 
     #[Route('/{id}/edit', name: 'app_vehicle_edit', methods: ['GET', 'POST'])]
@@ -132,32 +159,19 @@ class VehicleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $imageFile */
-            $imageFile = $form->get('image')->getData();
-
-            if ($imageFile) {
-                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
-
-                try {
-                    $imageFile->move(
-                        $this->getParameter('vehicle_images_directory'),
-                        $newFilename
-                    );
-                    $vehicle->setImage($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('danger', 'Une erreur est survenue lors du téléchargement de l\'image.');
-                }
+            try {
+                $entityManager->flush();
+                $this->addFlash('success', 'Véhicule modifié avec succès.');
+                return $this->redirectToRoute('app_vehicle_index');
+            } catch (\LogicException $e) {
+                $this->addFlash('error', $e->getMessage());
             }
-
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Véhicule modifié avec succès.');
-            return $this->redirectToRoute('app_vehicle_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('vehicle/edit.html.twig', [
             'vehicle' => $vehicle,
             'form' => $form->createView(),
+            'hasActiveReservations' => $vehicle->hasActiveReservations(),
         ]);
     }
 
@@ -166,12 +180,18 @@ class VehicleController extends AbstractController
     public function delete(Request $request, Vehicle $vehicle, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $vehicle->getId(), $request->request->get('_token'))) {
+            foreach ($vehicle->getReservations() as $reservation) {
+                $entityManager->remove($reservation);
+            }
+            foreach ($vehicle->getComments() as $comment) {
+                $entityManager->remove($comment);
+            }
             $entityManager->remove($vehicle);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Véhicule supprimé avec succès.');
+            $this->addFlash('success', 'Véhicule et données associées supprimés avec succès.');
         }
 
-        return $this->redirectToRoute('app_vehicle_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_vehicle_index');
     }
 }

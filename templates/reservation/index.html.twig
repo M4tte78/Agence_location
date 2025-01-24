@@ -7,47 +7,41 @@
         <h1 class="mb-4 text-center">Reservation index</h1>
 
         <table class="table table-striped table-bordered">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Id</th>
-                    <th>Date de début</th>
-                    <th>Date de fin</th>
-                    <th>Prix Total</th>
-                    {# <th>Status</th> #}
-                    <th>Vehicule</th>
-                
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for reservation in reservations %}
-                <tr>
-                    <td>{{ reservation.id }}</td>
-                    <td>{{ reservation.startDate ? reservation.startDate|date('Y-m-d H:i:s') : '' }}</td>
-                    <td>{{ reservation.endDate ? reservation.endDate|date('Y-m-d H:i:s') : '' }}</td>
-                    <td>{{ reservation.totalPrice }}</td>
-                    {# <td>{{ reservation.status }}</td> #}
-                    <td>{{ reservation.vehicle.model }}</td>
-                    {# <td>
-                        <img src="{{ asset('uploads/vehicles/' ~ reservation.vehicle.image) }}" alt="{{ reservation.vehicle.name }}" class="img-thumbnail" style="max-width: 100px;">
-                    </td> #}
-                    <td>
-                        <a href="{{ path('app_reservation_show', {'id': reservation.id}) }}" class="btn btn-info btn-sm">Show</a>
-                        {% if is_granted('ROLE_ADMIN') %}
-                            <a href="{{ path('app_reservation_edit', {'id': reservation.id}) }}" class="btn btn-warning btn-sm">Edit</a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="8" class="text-center">No records found</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Marque</th>
+                <th>Modèle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for vehicle in vehicles %}
+            <tr>
+                <td>{{ vehicle.id }}</td>
+                <td>{{ vehicle.brand }}</td>
+                <td>{{ vehicle.model }}</td>
+                <td>
+                    <a href="{{ path('app_vehicle_show', {'id': vehicle.id}) }}" class="btn btn-info btn-sm">
+                        Voir
+                    </a>
+                    <a href="{{ path('app_vehicle_edit', {'id': vehicle.id}) }}" class="btn btn-warning btn-sm">
+                        Modifier
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
         <div class="text-center mt-4">
-            <a href="{{ path('app_reservation_new') }}" class="btn btn-success">Create new</a>
+            <a href="{{ path('app_reservation_new') }}" class="btn btn-success">
+                Ajouter une réservation
+            </a>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('app_vehicle_index') }}" class="btn btn-primary">Retour à la liste des véhicules</a>
         </div>
     </div>
 {% endblock %}

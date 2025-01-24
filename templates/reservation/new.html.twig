@@ -1,23 +1,76 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle reservation{% endblock %}
+{% block title %}Créer une nouvelle réservation{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-lg">
-                    <div class="card-header bg-primary text-white">
-                        <h1 class="text-center">Créer nouvelle reservation</h1>
-                    </div>
-                    <div class="card-body">
-                        {{ include('reservation/_form.html.twig') }}
-                    </div>
-                    <div class="card-footer text-center">
-                        <a href="{{ path('app_reservation_index') }}" class="btn btn-secondary"> retour à la liste</a>
-                    </div>
-                </div>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Créer une nouvelle réservation</h1>
+
+    <div class="card p-4 shadow-sm">
+        <h2 class="text-center mb-3">Formulaire de réservation</h2>
+
+        {{ form_start(form) }}
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="form-group">
+                {{ form_label(form.customer, 'Client') }}
+                {{ form_widget(form.customer, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.customer) }}
             </div>
+            <div class="form-group">
+                {{ form_label(form.vehicle, 'Véhicule') }}
+                {{ form_widget(form.vehicle, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.vehicle) }}
+            </div>
+        {% else %}
+            <input type="hidden" name="vehicle_id" value="{{ vehicle.id }}">
+            <p><strong>Véhicule :</strong> {{ vehicle.brand }} {{ vehicle.model }}</p>
+            <p><strong>Prix par jour :</strong> {{ vehicle.pricePerDay }} €</p>
+        {% endif %}
+
+        <div class="form-group">
+            {{ form_label(form.startDate, 'Date de début') }}
+            {{ form_widget(form.startDate, {'attr': {'class': 'form-control', 'id': 'start-date'}}) }}
+            {{ form_errors(form.startDate) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.endDate, 'Date de fin') }}
+            {{ form_widget(form.endDate, {'attr': {'class': 'form-control', 'id': 'end-date'}}) }}
+            {{ form_errors(form.endDate) }}
+        </div>
+
+        <p><strong>Prix total :</strong> <span id="total-price">0</span> €</p>
+
+        <button type="submit" class="btn btn-primary">Réserver</button>
+        {{ form_end(form) }}
+
+        <div class="text-center mt-3">
+            <a href="{{ path('app_vehicle_index') }}" class="btn btn-secondary">Retour à la liste des véhicules</a>
         </div>
     </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const totalPriceElement = document.getElementById('total-price');
+        const pricePerDay = {{ vehicle.pricePerDay|default(0) }};
+
+        function calculateTotalPrice() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            if (startDate && endDate && startDate < endDate) {
+                const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                totalPriceElement.textContent = (days * pricePerDay).toFixed(2);
+            } else {
+                totalPriceElement.textContent = '0';
+            }
+        }
+
+        startDateInput.addEventListener('change', calculateTotalPrice);
+        endDateInput.addEventListener('change', calculateTotalPrice);
+    });
+</script>
 {% endblock %}

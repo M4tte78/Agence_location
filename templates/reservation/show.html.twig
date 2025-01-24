@@ -72,7 +72,11 @@
         </tr>
         <tr>
             <th>Réservé par</th>
-            <td>{{ customer.email }}</td>
+            <td>{{ reservation.customer.email }}</td>
+        </tr>
+        <tr>
+            <th>Véhicule</th>
+            <td>{{ reservation.vehicle.brand }} - {{ reservation.vehicle.model }}</td>
         </tr>
     </table>
 
